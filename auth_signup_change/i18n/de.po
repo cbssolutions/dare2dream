@@ -1,0 +1,8 @@
+#. module: auth_signup_change
+#: model:mail.template,subject:auth_signup_change.set_password_email
+msgid ""
+"${object.create_uid.name} from ${object.company_id.name} invites you to "
+"connect to Odoo FOO"
+msgstr ""
+"${object.create_uid.name} von ${object.company_id.name} lädt Sie ein sich in"
+" Odoo einzuloggen FOO."

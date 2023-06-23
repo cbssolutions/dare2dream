@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pos_pos_form" model="ir.ui.view">
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_pos_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                 <button type="object" string="CBS print at fiscal printer" icon="fa-print"
+                    name="cbs_print_at_fiscal_server_backend" attrs="{'invisible':[('cbs_fiscal_receipt_number','!=',False)]}"/>
+            </div>
+             <field name="fiscal_position_id" position="after">
+                    <field name="cbs_fiscal_receipt_number"/>
+                    <field name="cbs_ReadLastAndTotalReceiptNum"/>
+                    <field name="cbs_before_ReadLastAndTotalReceiptNum"/>
+             </field>
+        </field>
+    </record>
+    <record id="view_pos_order_tree" model="ir.ui.view">
+        <field name="model">pos.order</field>
+        <field name="inherit_id" ref="point_of_sale.view_pos_order_tree"/>
+        <field name="arch" type="xml">
+             <field name="amount_total" position="after">
+                    <field name="cbs_fiscal_receipt_number" optional="hide"/>
+                    <field name="cbs_ReadLastAndTotalReceiptNum" optional="hide"/>
+             </field>
+        </field>
+    </record>
+
+</odoo>

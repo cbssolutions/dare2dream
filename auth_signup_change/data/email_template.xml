@@ -1,0 +1,18 @@
+<odoo>
+    <data>
+
+        <function model="ir.model.data" name="_update_xmlids">
+            <value model="base" eval="[{
+                'xml_id': 'auth_signup_change.set_password_email',
+                'record': obj().env.ref('auth_signup.set_password_email'),
+                'noupdate': False,
+            }]"/>
+        </function>
+
+
+        <record id="auth_signup.set_password_email" model="mail.template">
+            <field name="subject">${object.create_uid.name} from ${object.company_id.name} invites you to connect to Odoo.</field>
+        </record>
+
+    </data>
+</odoo>

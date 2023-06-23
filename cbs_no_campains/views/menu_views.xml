@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <function model="ir.ui.menu" name="write">
+       <value model="ir.ui.menu" search="[('id', '=', ref('utm.menu_link_tracker_root'))]"/>
+       <value eval="{'active': False}"/>
+ </function>
+</odoo>

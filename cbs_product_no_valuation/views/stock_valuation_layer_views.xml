@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <delete model="ir.ui.menu" id="stock_account.menu_valuation"></delete>
+    
+    <record id="stock_valuation_layer_picking" model="ir.ui.view">
+        <field name="name">stock_valuation_layer_picking</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock_account.stock_valuation_layer_picking"/>
+        <field name="arch" type="xml">
+                <button name="action_view_stock_valuation_layers" position="attributes">
+                    <attribute name="attrs">{'invisible': True}</attribute>
+                </button>
+        </field>
+    </record>
+
+</odoo>

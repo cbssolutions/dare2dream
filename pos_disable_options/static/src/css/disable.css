@@ -1,0 +1,5 @@
+.disabled-mode{
+    background: #E0E2E6 !important;
+    color: #80848F !important;
+    cursor: not-allowed !important;
+}

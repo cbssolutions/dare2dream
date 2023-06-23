@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="pos_config_view_form" model="ir.ui.view">
+        <field name="model">pos.config</field>
+        <field name="inherit_id" ref="point_of_sale.pos_config_view_form"/>
+        <field name="arch" type="xml">
+<!--             <footer position="attributes">
+                <attribute name="invisible" eval="True"/> 
+            </footer>
+ -->            <sheet position="inside">
+                <button type="object" name="cbs_test_print_at_fiscal_server" string="Print Test Nonfiscal"/>
+                <button type="object" name="cbs_report_z" string="Report Z" confirm="Are you shure? Will print the report and will end the day."/>
+                <button type="object" name="cbs_report_x" string="Reprot X"/>
+                <group>
+                    <field name="cbs_fiscal_printer_server_ip"/>
+                    <separator string="Fiscal device parameters from server/driver viewpoint"/>
+                    <field name="cbs_fiscal_printer_ip"/>
+                    <field name="cbs_fiscal_printer_port"/>
+                    <field name="cbs_fiscal_printer_password"/>
+                    <field name="cbs_fiscal_printer_serial_port"/>
+                    <field name="cbs_fiscal_printer_serial_speed"/>
+
+                    <separator string="Fiscal receipt options"/>
+                    <field name="cbs_operator_password" />
+                    
+                    <field name="cbs_print_non_fiscal_receipt" />
+                    <field name="cbs_barcode_to_print" />
+                    <field name="cbs_cut_after_print" />
+                    <field name="cbs_cash_drawer_open" />
+                    <field name="cbs_print_logo" invisible="1"/>
+
+
+                    <field name="cbs_fiscal_printer_line_symbols" />
+                    <field name="cbs_receipt_product_name_max_lines" />
+                    
+                    <field name="receipt_header"/>
+                    <field name="receipt_footer"/>
+                </group>
+            </sheet>
+            <sheet position="after">
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" groups="base.group_user"/>
+                    <field name="message_ids"/>
+                </div>
+            </sheet>
+        </field>
+    </record>
+</odoo>
