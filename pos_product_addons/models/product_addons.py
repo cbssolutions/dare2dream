@@ -32,9 +32,6 @@ class PosOrder(models.Model):
     """To write the product addons to backend """
     _inherit = 'pos.order'
 
-
-
-
     @api.model
     def _process_order(self, order, draft, existing_order):
         """Create or update an pos.order from a given dictionary.
@@ -51,12 +48,8 @@ class PosOrder(models.Model):
         if pos_session.state == 'closing_control' or pos_session.state == 'closed':
             order['pos_session_id'] = self._get_valid_session(order).id
 
+        pos_order = False
         addons = self.add_addons(order)  # adding the addons to the order
-
-        
-       
-        
-        pos_order = False  # by me was in odoo code but not cybrosys
         if not existing_order:
             pos_order = self.create(self._order_fields(order))
             for rec in addons:
@@ -97,10 +90,6 @@ class PosOrder(models.Model):
                     })
 
         else:
-            except Exception as e:
-                _logger.error('Could not fully process the POS Order: %s', tools.ustr(e))
-            pos_order._create_order_picking()
-
             pos_order = existing_order
             pos_order.lines.unlink()
             order['user_id'] = pos_order.user_id.id
@@ -120,10 +109,11 @@ class PosOrder(models.Model):
                 _logger.error('Could not fully process the POS Order: %s',
                               tools.ustr(e))
             pos_order._create_order_picking()
-            pos_order._compute_total_cost_in_real_time()
+            pos_order._compute_total_cost_in_real_time()  # me this is in odoo
 
         if pos_order.to_invoice and pos_order.state == 'paid':
-            pos_order._generate_pos_order_invoice()
+            pos_order._generate_pos_order_invoice()  # me this is in odoo
+#            pos_order.action_pos_order_invoice()  # me this was on cybrosys
 
         return pos_order.id
 
