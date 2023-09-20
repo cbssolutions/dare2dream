@@ -90,6 +90,13 @@ class PosConfig(models.Model):
         try:
             # here is the connection of the ZFPLABserver with fiscal device
             fp = FP()
+            column_position = self.cbs_fiscal_printer_server_ip.find(":")
+            cbs_fiscal_printer_server_ip_ip = self.cbs_fiscal_printer_server_ip[:column_position]
+            if column_position != -1:
+                cbs_fiscal_printer_server_ip_port = int(self.cbs_fiscal_printer_server_ip[column_position+1:])
+            else:
+                cbs_fiscal_printer_server_ip_port = 4444
+            fp.serverSetSettings(cbs_fiscal_printer_server_ip_ip, cbs_fiscal_printer_server_ip_port)
             fp.serverSetDeviceTcpSettings(*settings_param)
             if not fp.isCompatible():
                 raise ValidationError("Server definitions and client code have different versions!")
@@ -110,7 +117,7 @@ class PosConfig(models.Model):
                         )
             try:
                 # opening a nor fiscal receipt
-                fp.OpenNonFiscalReceipt(1, self.config_id.cbs_operator_password, 0)
+                fp.OpenNonFiscalReceipt(1, self.cbs_operator_password, 0)  # last parameter 0 step by step printint, 1 postponed printing
             except Exception as ex:
                 try:  # if it was blocked and showing STL
                     fp.CancelReceipt()   # comand i
