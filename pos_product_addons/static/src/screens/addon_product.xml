@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates id="template" xml:space="preserve">
+    <!-- Show Addon products in POS -->
+    <t t-name="Addonspane" t-inherit="point_of_sale.ProductScreen"
+       t-inherit-mode="extension" owl="1">
+        <xpath expr="//ProductsWidget" position="before">
+             <div class="addonpane">
+                <table class="addons-table">
+                    <tr>
+                        <th class="addons-head">
+                            <span class="head">Addons</span>
+                            <br/>
+                            <span class="sub-head">Products</span>
+                        </th>
+                    </tr>
+                </table>
+             </div>
+        </xpath>
+    </t>
+</templates>

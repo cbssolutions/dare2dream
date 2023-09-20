@@ -1,4 +1,3 @@
-
 .addonpane{
     visibility: hidden;
     position: fixed;
@@ -12,10 +11,6 @@
     background-color: #d3d3d3;
 
 }
-
-
-
-
 .addons-table{
     width: 100%;
     border-radius: 5px;
@@ -69,7 +64,6 @@
     transition: 0.5s;
     border: none;
 }
-
 .addon-orderline{
     margin-left: 25px;
     color: #948888;
@@ -82,7 +76,6 @@
     text-overflow: ellipsis;
     font-size: small;
     font-weight: bold;
-
 }
 .addon-orderline-price {
     padding: 0;

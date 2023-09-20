@@ -16,7 +16,6 @@ odoo.define('pos_product_addons.orderline', function(require) {
                 super.selectLine();
             }
         };
-
     Registries.Component.extend(Orderline, PosOrderLineAddons);
     return Orderline;
 });

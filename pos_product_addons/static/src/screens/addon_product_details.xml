@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates id="template" xml:space="preserve">
+    <!-- Display selected add-on products with price and quantity in order line -->
+    <t t-name="OrdelineAddons" t-inherit="point_of_sale.Orderline"
+       t-inherit-mode="extension" owl="1">
+        <xpath expr="//ul[hasclass('info-list')]" position="before">
+             <t t-if="'addon_items' in props.line">
+                <t t-foreach="props.line.addon_items" t-as="item"
+                   t-key="item_index">
+                    <div class="addon-orderline">
+                        <span class="addon-orderline-name">
+                            <span style="margin-left: 10px;">
+                                <t t-esc="item.addon_name"/>
+                            </span>
+
+                            <em style="margin-left: 10px;">
+                            (<t t-esc="item.addon_count"/>
+                            </em>
+
+                            <span style="margin-left: 10px;">
+                                <t t-esc="item.addon_uom"/>
+                            </span>
+                            at
+                            <span t-if="item.addon_price_with"
+                                  class="addon-orderline-price">
+                                <t t-esc="env.pos.format_currency(item.addon_price_with)"/>
+                            </span>
+                            /
+                            <t t-esc="item.addon_uom"/>)
+                        </span>
+                        <span t-if="item.total_with"
+                              class="addon-orderline-price">
+                            <t t-esc="env.pos.format_currency(item.total_with)"/>
+                        </span>
+                    </div>
+                </t>
+            </t>
+        </xpath>
+    </t>
+</templates>

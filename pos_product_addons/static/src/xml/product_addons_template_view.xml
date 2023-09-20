@@ -2,7 +2,8 @@
 
 <templates id="template" xml:space="preserve">
 
-    <t t-name="Addonspane" t-inherit="point_of_sale.ProductScreen" t-inherit-mode="extension" owl="1">
+    <t t-name="Addonspane"
+       t-inherit="point_of_sale.ProductScreen" t-inherit-mode="extension" owl="1">
         <xpath expr="//ProductsWidget" position="before">
              <div class="addonpane">
                     <table class="addons-table" t-on-click="_add_to_orderline">
@@ -40,10 +41,6 @@
                             </span>
                             /
                             <t t-esc="item.addon_uom" />
-
-<!--                            <em class="addon-orderline-uom">-->
-<!--                                <t t-esc="props.line.get_addon_uom(item.addon_id)"/>-->
-<!--                            </em>-->
                         </span>
                         <span t-if="item.total_with" class="addon-orderline-price">
                             <t t-esc="env.pos.format_currency(item.total_with)"/>
