@@ -102,9 +102,6 @@ class PosOrder(models.Model):
         if error:
             raise ValidationError(error)
 
-    def cbs_print_nonfiscal(self, *a):
-        return self.with_context(force_nonfiscal=True).cbs_print_at_fiscal_server(a)
-
     def cbs_print_at_fiscal_server(self, *a):
         force_nonfiscal = self._context.get('force_nonfiscal')
         if not self.config_id.cbs_fiscal_printer_server_ip:
@@ -243,6 +240,9 @@ class PosOrder(models.Model):
                 first_sale_lines_after_storno = [x for x in is_sale]
                 first_sale_lines_after_storno.extend([x for x in is_return])
                 for line in first_sale_lines_after_storno:
+                    if (self.config_id.cbs_no_zero_value_on_fiscal_receipt and
+                            (abs(line.price_unit) < 0.01 or abs(line.qty) < 0.01)):
+                        continue  # we do not print 0 line
                     # we can have more lines of product name, we are going to wirte this, and last one like a product
                     to_print_for_product = line.product_id.text_list_for_pos_fiscal_recipt()
                     prod_name = to_print_for_product[0]
@@ -279,6 +279,7 @@ class PosOrder(models.Model):
                         fp.StornoPLU(prod_list[-1],
                                      line_tremol_VATrate, (-1) * line.price_unit,
                                      line.qty * (-1))
+                    pass
                 # cash payment:
                 cash_payments = self.payment_ids.filtered(lambda r: r.payment_method_id.journal_id.type == 'cash')
                 non_cash_payments = self.payment_ids.filtered(lambda r: r.payment_method_id.journal_id.type != 'cash')
@@ -348,6 +349,12 @@ class PosOrder(models.Model):
                             "cbs_before_ReadLastAndTotalReceiptNum": json.dumps(
                                 {"last_nr": b_last_nr, "last_total": b_last_total}),
                             'cbs_ReadLastAndTotalReceiptNum': json.dumps({"last_nr": last_nr, "last_total": last_total})})
+                if self.cbs_after_fiscal_receipt_print_non_fiscal:
+                    # we are going to print also the non fiscal receipt 
+                    fp.PaperFeed()
+                    fp.PaperFeed()
+                    self.with_context(force_nonfiscal=True).cbs_print_at_fiscal_server(a)
+
             if self.config_id.cbs_cut_after_print:
                 fp.PaperFeed()
                 fp.CutPaper()

@@ -47,6 +47,11 @@ class PosConfig(models.Model):
                                           help="If checked, will give command. Works if you have a cash drawer "
                                           "connected to fiscal device, and when is something about cash.")
     cbs_print_logo = fields.Boolean()
+    cbs_no_zero_value_on_fiscal_receipt = fields.Boolean(
+        help="If True, will not print on fiscal receipt lines with value 0;"
+        " will print them on non fiscal recipts (can be the case of kitchen components).")
+    cbs_after_fiscal_receipt_print_non_fiscal = fields.Boolean(
+        help="If True, after printing of a fiscal receipt(or if fiscal, at next prints) will print also the non fiscal one.")
 
     cbs_fiscal_printer_line_symbols = fields.Integer(default=32, help="Max nr of characters per printed line. "
                                                      "Used to split on more lines for example the product name.")

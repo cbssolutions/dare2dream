@@ -29,14 +29,15 @@ For this module to work, the fisca printer must be accessed from the odoo server
 1.3.0 mapping betweeen odoo and tremol vat rates (A 19% B 9% ...E 0%); 
     - if the product does not have VAT will put what is in conifg cbs_no_vat_class (default E).
     - if line vat is not found in cbs_odoo_tax_id_to_tremol_vat_json, will set default A 
+1.4.0 cbs_no_zero_value_on_fiscal_receipt = true will not print 0 value lines
+        cbs_after_fiscal_receipt_print_non_fiscal = true will print a non fiscal receipt after fiscal one
 Future:
-
 - to make also to work directly from javascript ( or other version for javascript, when the server is installed locally and also the printer, and odoo server can not access them)
 - to make it work only from some ip/or the ip where is the fiscal printer (read the request ip and use it as ip of fiscal driver)
     """,
     'category': 'Sales/Point of Sale',
     'sequence': 300,
-    'version': '16.0.1.3.0',
+    'version': '16.0.1.4.0',
     "website": "https://cbssolutions.ro",
     "author": "dev@cbssolutions.ro",
     "maintainers": ["dev@cbssolutions.ro"],

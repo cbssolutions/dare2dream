@@ -26,6 +26,8 @@
                     <field name="cbs_odoo_tax_id_to_tremol_vat_json"/>
                     
                     <field name="cbs_print_non_fiscal_receipt" />
+                    <field name="cbs_no_zero_value_on_fiscal_receipt" />
+                    <field name="cbs_after_fiscal_receipt_print_non_fiscal" />
                     <field name="cbs_barcode_to_print" />
                     <field name="cbs_cut_after_print" />
                     <field name="cbs_cash_drawer_open" />
