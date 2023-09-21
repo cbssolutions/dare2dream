@@ -10,6 +10,9 @@
                     <tr>
                         <th class="addons-head">
                             <span class="head">Addons</span>
+                                <button type="button" class="cbs_close_addons" aria-label="Close">
+                                      <span aria-hidden="true">cbs_close_addons</span>
+                                </button>
                             <br/>
                             <span class="sub-head">Products</span>
                         </th>

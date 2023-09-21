@@ -1,6 +1,7 @@
 odoo.define('pos_product_addons.models', function(require) {
     "use strict";
 
+    var Dialog = require('web.Dialog'); //cbs
     var {Order,
         Orderline,
         PosGlobalState
@@ -217,18 +218,37 @@ odoo.define('pos_product_addons.models', function(require) {
             var product = self.env.pos.db.get_product_by_id(product_id);
             var element = [];
             if (product.product_ids.length) {
+                /*cbs
+                var dialog = new Dialog(this, {
+                    title: ('Select Addons'),
+                    size: 'fullscreen',
+                    $content: $("<p>e o fereastra</p>"),
+                    buttons: [{
+                        text: ('Close'),
+                        close: true,
+                    }],
+                    on_closed: function () {
+                    // Add any cleanup logic here
+                }
+                });
+                dialog.open();                
+                ///cbs */
                 var $addonpane = $('.addonpane');
                 if (this.env.isMobile) {
-                    $('.product-list-container').css("width", "70%");
+                    $('.product-list-container').css("width", "20%");
                     $addonpane.css("visibility", "visible");
-                    $addonpane.css("width", "30%");
+                    $addonpane.css("width", "80%");
                 } else {
-                    $('.product-list-container').css("width", "80%");
+                    $('.product-list-container').css("width", "20%");
                     $addonpane.css("visibility", "visible");
-                    $addonpane.css("width", "13.1%");
+                    $addonpane.css("width", "80%");
                 }
                 var display_name = '(' + product.display_name + ')'
                 $('.sub-head').text(display_name).show('fast');
+                $('.cbs_close_addons').click(function(event){
+                    alert("working close");
+                    self.hide_addons();
+                })
                 for (var item = 0; item < product.product_ids.length; item++) {
                     var product_obj = self.env.pos.db.get_product_by_id([product.product_ids[item]]);
                     if (product_obj) {
