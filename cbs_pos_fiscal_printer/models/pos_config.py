@@ -98,6 +98,7 @@ class PosConfig(models.Model):
                 "You did not configure ip or port for fiscal printer. "
                 "Support at dev@cbssolutions.ro.")
         try:
+            ex_open_non_fiscal_receipt, ex_close_non_fiscal = '', ''
             # here is the connection of the ZFPLABserver with fiscal device
             fp = FP()
             column_position = self.cbs_fiscal_printer_server_ip.find(":")
@@ -125,7 +126,6 @@ class PosConfig(models.Model):
                         "and is not a fiscal printer, it  must be in Sale Menu to show 0.00 (Mode/Reg oper/0/Total)."
                         " Support at dev@cbssolutions.ro."
                         )
-            ex_open_non_fiscal_receipt, ex_close_non_fiscal = '', ''
             try:
                 # opening a nor fiscal receipt
                 fp.OpenNonFiscalReceipt(1, self.cbs_operator_password, 0)  # last parameter 0 step by step printint, 1 postponed printing
