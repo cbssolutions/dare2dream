@@ -6,6 +6,8 @@ from .FP_core import ServerException, SErrorType
 from .FP import FP, Enums
 from urllib.parse import urlparse
 import logging
+import traceback
+
 
 from odoo import api, fields, models, tools, _
 from odoo.exceptions import ValidationError, UserError
@@ -115,27 +117,30 @@ class PosConfig(models.Model):
                         "and is not a fiscal printer, it  must be in Sale Menu to show 0.00 (Mode/Reg oper/0/Total)."
                         " Support at dev@cbssolutions.ro."
                         )
+            ex_open_non_fiscal_receipt, ex_close_non_fiscal = '', ''
             try:
                 # opening a nor fiscal receipt
                 fp.OpenNonFiscalReceipt(1, self.cbs_operator_password, 0)  # last parameter 0 step by step printint, 1 postponed printing
-            except Exception as ex:
+            except Exception as ex1:
+                ex_open_non_fiscal_receipt = ex1
                 try:  # if it was blocked and showing STL
                     fp.CancelReceipt()   # comand i
-                    raise ValidationError(f'Bon fiscal anterior ramas deschiis {ex=}. L-am inchis. '
+                    raise ValidationError(f'Bon fiscal anterior ramas deschiis {ex1=}. L-am inchis. '
                                           'Mai printeaza o data.')
-                except Exception as ex:
+                except Exception as ex2:
+                    ex_close_non_fiscal = ex2
                     # no fiscal recipt was left open
                     # we can only be in case of a opened non fiscal receipt and we are closing it
                     fp.CloseNonFiscalReceipt()
-                    raise ValidationError(f"We closed a non fiscal recipt that was open. Before_error:{ex}")
+                    raise ValidationError(f"We closed a non fiscal recipt that was open. Before_error:{ex2}")
             fp.PrintText("SUPPORT: https://cbssolutions.ro")
             fp.CloseNonFiscalReceipt()
             if self.cbs_cut_after_print:
                 fp.PaperFeed()
                 fp.CutPaper()
             _logger.warning('!!!!!!!!!!!Fiscal Printer test succeded. !!!!!!!!!!!Support at dev@cbssolutions.ro!!!!!')
-        except Exception as ex:
-            raise ValidationError(ex)
+        except Exception as ex3:
+            raise ValidationError(f"{ex_open_non_fiscal_receipt=}\n{ex_close_non_fiscal=}\n{ex3=}\n\n{traceback.format_exc()=}")
 
     def cbs_report_z(self):
         self.cbs_report_x(OptionZeroing='Z')
