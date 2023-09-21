@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+  <function model="ir.ui.menu" name="write">
+       <value model="ir.ui.menu" search="[('id', '=', ref('base.menu_view_base_module_upgrade'))]"/>
+       <value eval="{'active': False}"/>
+ </function>
+  <function model="ir.ui.menu" name="write">
+       <value model="ir.ui.menu" search="[('id', '=', ref('base.menu_module_updates'))]"/>
+       <value eval="{'active': False}"/>
+ </function>
+  <function model="ir.ui.menu" name="write">
+       <value model="ir.ui.menu" search="[('id', '=', ref('base.module_mi'))]"/>
+       <value eval="{'active': False}"/>
+ </function>
+  <function model="ir.ui.menu" name="write">
+       <value model="ir.ui.menu" search="[('id', '=', ref('base.menu_third_party'))]"/>
+       <value eval="{'active': False}"/>
+ </function>
+  <function model="ir.ui.menu" name="write">
+       <value model="ir.ui.menu" search="[('id', '=', ref('base.menu_theme_store'))]"/>
+       <value eval="{'active': False}"/>
+ </function>
+  <function model="ir.ui.menu" name="write">
+       <value model="ir.ui.menu" search="[('id', '=', ref('base.theme_store'))]"/>
+       <value eval="{'active': False}"/>
+ </function>
+
+
+</odoo>
