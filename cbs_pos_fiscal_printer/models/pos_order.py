@@ -255,13 +255,20 @@ class PosOrder(models.Model):
                     if len(prod_list) > 1:
                         for name in prod_list[:-1]:
                             fp.PrintText(f"{self.sanitise_txt_for_fiscal_print(name)}")
+# choose the VAT at tremol fiscal printer
+# vat 'A' - VAT Class A 19, 'B' - VAT Class B 9, 'C' - VAT Class C 5, 'D' - VAT Class D 0, 'E' - VAT Class E 0, 'F' - Alte taxe 0              
+# Enums.OptionVATClass.VAT_Class_A = 'A'
+                    line_tremol_VATrate = self.config_id.cbs_no_vat_class
+                    if line.tax_ids:
+                        cbs_odoo_tax_id_to_tremol_vat_json = json.loads(self.config_id.cbs_odoo_tax_id_to_tremol_vat_json)
+                        line_tremol_VATrate = cbs_odoo_tax_id_to_tremol_vat_json.get(line.tax_ids[0].id, 'A')
                     # the efective sale line
                     if line in is_sale:
                         # fp.SellPLUwithSpecifiedVAT("Article", Enums.OptionVATClass.VAT_Class_A, 0.01, 1)
                         # 0.01  =  unit price including vat
                         # 1 = quantity
                         fp.SellPLUwithSpecifiedVAT(prod_list[-1],
-                                                   Enums.OptionVATClass.VAT_Class_A, line.price_unit,
+                                                   line_tremol_VATrate, line.price_unit,
                                                    line.qty)
                     else:  # is STORNO STORNO ( some + values and some - values with sum > 0.01) #    line in is_return
                         # the fiscal printer will write a storno before
@@ -270,7 +277,7 @@ class PosOrder(models.Model):
                         # you are not allowd to have less than 0.01
                         # first time the + lines than the - ones, here we are the -, where given qty must be>1 and price <0
                         fp.StornoPLU(prod_list[-1],
-                                     Enums.OptionVATClass.VAT_Class_A, (-1) * line.price_unit,
+                                     line_tremol_VATrate, (-1) * line.price_unit,
                                      line.qty * (-1))
                 # cash payment:
                 cash_payments = self.payment_ids.filtered(lambda r: r.payment_method_id.journal_id.type == 'cash')

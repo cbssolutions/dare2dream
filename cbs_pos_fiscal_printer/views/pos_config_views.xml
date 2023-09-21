@@ -22,6 +22,8 @@
 
                     <separator string="Fiscal receipt options"/>
                     <field name="cbs_operator_password" />
+                    <field name="cbs_no_vat_class"/>
+                    <field name="cbs_odoo_tax_id_to_tremol_vat_json"/>
                     
                     <field name="cbs_print_non_fiscal_receipt" />
                     <field name="cbs_barcode_to_print" />

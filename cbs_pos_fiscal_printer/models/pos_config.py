@@ -52,6 +52,14 @@ class PosConfig(models.Model):
                                                      "Used to split on more lines for example the product name.")
     cbs_receipt_product_name_max_lines = fields.Integer(default=3, help="Max lines what a long product name can have.")
 
+    cbs_no_vat_class = fields.Selection(
+        [('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D'), ('E', 'E'), ('F', 'F')], require=1,
+        help='If you sell without vat, what vat to put from tremol VAT rates.', default="E")
+    cbs_odoo_tax_id_to_tremol_vat_json = fields.Char(
+        default='{}', help='A json mapping the id of tax to tremol vat class '
+        'like for example {"3":"A", "30":"B"} will map the tax with id=3 from odoo '
+        'to VAT rateA from tremol that is usualy 19.00; If mapping does not match will take the configured A VAT rate.')
+
 # existing fileds just for tracking
     receipt_header = fields.Text(tracking=1, default="")
     receipt_footer = fields.Text(tracking=1, default="")
