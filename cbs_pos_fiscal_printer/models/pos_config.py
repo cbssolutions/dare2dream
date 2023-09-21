@@ -181,6 +181,7 @@ class PosConfig(models.Model):
         try:
             # here is the connection of the ZFPLABserver with fiscal device
             fp = FP()
+            fp.serverSetSettings(hostname, port)
             fp.serverSetDeviceTcpSettings(*settings_param)
             if not fp.isCompatible():
                 raise ValidationError("Server definitions and client code have different versions!")

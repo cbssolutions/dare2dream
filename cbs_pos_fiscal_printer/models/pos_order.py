@@ -102,7 +102,11 @@ class PosOrder(models.Model):
         if error:
             raise ValidationError(error)
 
+    def cbs_print_nonfiscal(self, *a):
+        return self.with_context(force_nonfiscal=True).cbs_print_at_fiscal_server(a)
+
     def cbs_print_at_fiscal_server(self, *a):
+        force_nonfiscal = self._context.get('force_nonfiscal')
         if not self.config_id.cbs_fiscal_printer_server_ip:
             return {}
         if len(self) != 1:
@@ -120,7 +124,7 @@ class PosOrder(models.Model):
         #    return {'error': "Nu poti avea si linii de vanzare si de retur in acelsi bon. Prima data faceti retur cu "
         #            "liniile necesare apoi faceti alt bon cu ce se vinde."}
 
-        if self.cbs_fiscal_receipt_number:
+        if self.cbs_fiscal_receipt_number and not self.config_id.cbs_print_non_fiscal_receipt:
             return {'error': "CBS: This recipt is already printed and it has the follwoing "
                     f"{self.cbs_fiscal_receipt_number=}"}
         if not self.config_id.cbs_fiscal_printer_server_ip:
@@ -206,7 +210,7 @@ class PosOrder(models.Model):
                         fp.CloseNonFiscalReceipt()
                     return {'error': f"CBS: We closed a non fiscal recipt that was open.\n{ex1=}\n{ex2=}\n{ex3=}"}
 
-            if self.config_id.cbs_print_non_fiscal_receipt or has_negative_amount:
+            if self.config_id.cbs_print_non_fiscal_receipt or force_nonfiscal or has_negative_amount:
                 # ******************** NON fiscal bill *************************
                 if is_return:
                     fp.PrintText(f"RETUR AL: {is_return.ids}")
@@ -324,18 +328,19 @@ class PosOrder(models.Model):
 #                     print("GS info: " + str(GS_INFO))
             fp.PrintText(barcode_to_print)
 
-            if self.config_id.cbs_print_non_fiscal_receipt or has_negative_amount:
+            if self.config_id.cbs_print_non_fiscal_receipt or force_nonfiscal or has_negative_amount:
                 fp.CloseNonFiscalReceipt()
             else:
                 fp.CloseReceipt()
 
-            this_receipt = fp.ReadLastAndTotalReceiptNum()
-            last_nr = str(this_receipt.LastReceiptNum)
-            last_total = str(this_receipt.TotalReceiptCounter)
-            self.write({'cbs_fiscal_receipt_number': last_nr,
-                        "cbs_before_ReadLastAndTotalReceiptNum": json.dumps(
-                            {"last_nr": b_last_nr, "last_total": b_last_total}),
-                        'cbs_ReadLastAndTotalReceiptNum': json.dumps({"last_nr": last_nr, "last_total": last_total})})
+            if not (self.config_id.cbs_print_non_fiscal_receipt or force_nonfiscal):
+                this_receipt = fp.ReadLastAndTotalReceiptNum()
+                last_nr = str(this_receipt.LastReceiptNum)
+                last_total = str(this_receipt.TotalReceiptCounter)
+                self.write({'cbs_fiscal_receipt_number': last_nr,
+                            "cbs_before_ReadLastAndTotalReceiptNum": json.dumps(
+                                {"last_nr": b_last_nr, "last_total": b_last_total}),
+                            'cbs_ReadLastAndTotalReceiptNum': json.dumps({"last_nr": last_nr, "last_total": last_total})})
             if self.config_id.cbs_cut_after_print:
                 fp.PaperFeed()
                 fp.CutPaper()
