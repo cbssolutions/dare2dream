@@ -25,7 +25,7 @@ For this module to work, the fisca printer must be accessed from the odoo server
     difference (the products must have same vat not viefied by this module). The stono line price will be with -.
     Now exist also Operator Password for fiscal printer/casher.
     Option in setting to PrintDailyRepot  Z ot X.
-
+1.2.1 better error at pos test; and also fucntiong with any ip for tremol server
 
 Future:
 - to make also to work directly from javascript ( or other version for javascript, when the server is installed locally and also the printer, and odoo server can not access them)
@@ -33,7 +33,7 @@ Future:
     """,
     'category': 'Sales/Point of Sale',
     'sequence': 300,
-    'version': '16.0.1.2.0',
+    'version': '16.0.1.2.1',
     "website": "https://cbssolutions.ro",
     "author": "dev@cbssolutions.ro",
     "maintainers": ["dev@cbssolutions.ro"],

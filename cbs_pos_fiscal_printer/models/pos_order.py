@@ -2,6 +2,7 @@
 # License OPL-1.0 or later (Odoo Proprietary License)
 # (https://www.odoo.com/documentation/16.0/legal/licenses.html#odoo-apps).
 import socket
+import traceback
 from .FP_core import ServerException, SErrorType
 from .FP import FP, Enums
 from datetime import datetime
@@ -105,7 +106,7 @@ class PosOrder(models.Model):
         if not self.config_id.cbs_fiscal_printer_server_ip:
             return {}
         if len(self) != 1:
-            return {'error': f"we can only print one fiscal receipt; but received {self=}"}
+            return {'error': f"CBS: We can only print one fiscal receipt; but received {self=}"}
         # test not th have refound and sale in same recipt
         is_return = self.lines.filtered(lambda r: r.refunded_orderline_id)
         is_sale = self.lines.filtered(lambda r: not r.refunded_orderline_id)
@@ -120,10 +121,10 @@ class PosOrder(models.Model):
         #            "liniile necesare apoi faceti alt bon cu ce se vinde."}
 
         if self.cbs_fiscal_receipt_number:
-            return {'error': "This recipt is already printed and it has the follwoing "
+            return {'error': "CBS: This recipt is already printed and it has the follwoing "
                     f"{self.cbs_fiscal_receipt_number=}"}
         if not self.config_id.cbs_fiscal_printer_server_ip:
-            return {'error': "You do not have configured in pos config the cbs_fiscal_printer_server_ip."
+            return {'error': "CBS: You do not have configured in pos config the cbs_fiscal_printer_server_ip."
                     " Support at dev@cbssolutions.ro."
                     }
         cbs_fiscal_printer_server_ip = self.config_id.cbs_fiscal_printer_server_ip
@@ -140,7 +141,7 @@ class PosOrder(models.Model):
         if result == 0:
             pass  # port is open
         else:
-            return {'error': f"The Driver/Print Server with cbs_fiscal_printer_server_ip="
+            return {'error': f"CBS: The Driver/Print Server with cbs_fiscal_printer_server_ip="
                     f"{self.config_id.cbs_fiscal_printer_server_ip} {hostname=} {port=} is not reachable. "
                     "Support at dev@cbssolutions.ro."}
 
@@ -151,14 +152,16 @@ class PosOrder(models.Model):
             settings_param = (self.config_id.cbs_fiscal_printer_serial_port,
                               self.config_id.cbs_fiscal_printer_serial_speed)
         else:
-            return {'error': "You did not configure ip or port for fiscal printer. "
+            return {'error': "CBS: You did not configure ip or port for fiscal printer. "
                     "Support at dev@cbssolutions.ro."}
+        ex1, ex2, ex3 = '', '', ''
         try:
-            # here is the connection of the ZFPLABserver with fiscal device
             fp = FP()
+            # here is the connection of the ZFPLABserver with fiscal device
+            fp.serverSetSettings(hostname, port)
             fp.serverSetDeviceTcpSettings(*settings_param)
             if not fp.isCompatible():
-                return {'error': "Server definitions and client code have different versions!"}
+                return {'error': "CBS: Server definitions and client code have different versions!"}
             # test server can reach ip/port of fiscal device
             if self.config_id.cbs_fiscal_printer_ip:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -167,7 +170,7 @@ class PosOrder(models.Model):
                 if result == 0:
                     pass  # exist connection between ZFPLABserver and Fiscal Device
                 else:
-                    return {'error': "The ZFPLABserver can not connect to Fiscal Device with ip="
+                    return {'error': "CBS: The ZFPLABserver can not connect to Fiscal Device with ip="
                             f"{self.config_id.cbs_fiscal_printer_ip} on port:{self.config_id.cbs_fiscal_printer_port}."
                             " If the fiscal printer is on, and it has internet, and the route from server is ok, and"
                             " is not a fiscal printer, it  must be in Sale Menu to show 0.00 (Mode/Reg oper/0/Total)."
@@ -188,17 +191,20 @@ class PosOrder(models.Model):
                 else:
                     fp.OpenReceipt(1, self.config_id.cbs_operator_password, 0)
             except Exception as ex:
+                ex1 = ex
                 try:  # if it was blocked and showing STL
                     fp.CancelReceipt()   # comand i
-                    return {'error': f'Bon fiscal anterior ramas deschiis {ex=}. L-am inchis. Mai printeaza o data.'}
+                    return {'error': f'CBS: Bon fiscal anterior ramas deschiis {ex=}. L-am inchis. Mai printeaza o data.'}
                 except Exception as ex:
+                    ex2 = ex
                     # no fiscal recipt was left open; or we are in payment
                     try:
                         fp.CashPayCloseReceipt()  # if i'm in payment I can not cancel it with normal cancel
                     except Exception as ex:
+                        ex3 = ex
                         # we can only be in case of a opened non fiscal receipt and we are closing it
                         fp.CloseNonFiscalReceipt()
-                    return {'error': f"We closed a non fiscal recipt that was open. Before_error:{ex}"}
+                    return {'error': f"CBS: We closed a non fiscal recipt that was open.\n{ex1=}\n{ex2=}\n{ex3=}"}
 
             if self.config_id.cbs_print_non_fiscal_receipt or has_negative_amount:
                 # ******************** NON fiscal bill *************************
@@ -336,5 +342,6 @@ class PosOrder(models.Model):
             _logger.info(f'ok_printed_pos_order_id: ({self.id=}, {self.name=}, {barcode_to_print=})')
             return {'ok_printed_pos_order_id': (self.id, self.name, barcode_to_print)}
         except Exception as ex:
-            _logger.error(f'error at fiscal_printer: {handle_exception(ex)}')
-            return {'error': handle_exception(ex)}
+            error = f'CBS: error at fiscal_printer: {ex1=}\n{ex2=}\n{ex3=}\n{handle_exception(ex)}\n' + f"{traceback.format_exc()=}"[:300]
+            _logger.error(error)
+            return {'error': error}
