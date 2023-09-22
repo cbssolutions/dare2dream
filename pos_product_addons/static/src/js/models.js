@@ -218,30 +218,15 @@ odoo.define('pos_product_addons.models', function(require) {
             var product = self.env.pos.db.get_product_by_id(product_id);
             var element = [];
             if (product.product_ids.length) {
-                /*cbs
-                var dialog = new Dialog(this, {
-                    title: ('Select Addons'),
-                    size: 'fullscreen',
-                    $content: $("<p>e o fereastra</p>"),
-                    buttons: [{
-                        text: ('Close'),
-                        close: true,
-                    }],
-                    on_closed: function () {
-                    // Add any cleanup logic here
-                }
-                });
-                dialog.open();                
-                ///cbs */
                 var $addonpane = $('.addonpane');
                 if (this.env.isMobile) {
-                    $('.product-list-container').css("width", "20%");
+//                    $('.product-list-container').css("width", "30%");
                     $addonpane.css("visibility", "visible");
-                    $addonpane.css("width", "80%");
+                    $addonpane.css("width", "60%");
                 } else {
-                    $('.product-list-container').css("width", "20%");
+//                    $('.product-list-container').css("width", "30%");
                     $addonpane.css("visibility", "visible");
-                    $addonpane.css("width", "80%");
+                    $addonpane.css("width", "60%");
                 }
                 var display_name = '(' + product.display_name + ')'
                 $('.sub-head').text(display_name).show('fast');
@@ -249,15 +234,37 @@ odoo.define('pos_product_addons.models', function(require) {
 //                    alert("working close");
                     self.hide_addons();
                 })
+                const pos_category_id_name_dict = {};
+                const pos_categ_id_products_dict = {}; 
                 for (var item = 0; item < product.product_ids.length; item++) {
                     var product_obj = self.env.pos.db.get_product_by_id([product.product_ids[item]]);
                     if (product_obj) {
-                        element = product_obj.display_name;
-                        var addonRow = $('<tr class="addon-contents row" style="width: 100%;">' +
-                            '<td class="addons-item" style="width: 100%;" data-addon-id=' + product_obj.id + '>' +
-                            '<div class="addons-product" style="display: inline-block; width: 50%;">' + element + '</div>' +
-                            '<button class="add-button">+</button><button class="remove-button">-</button></td>' +
-                            '</tr>');
+                        const pos_categ_id_name = product_obj.pos_categ_id;  //proxy array 0: id, 1: name
+                        if (!pos_category_id_name_dict[pos_categ_id_name[0]]){
+                            pos_category_id_name_dict[pos_categ_id_name[0]] = pos_categ_id_name[1];
+                            pos_categ_id_products_dict[pos_categ_id_name[0]] = [];
+                        }
+                        pos_categ_id_products_dict[pos_categ_id_name[0]].push(product_obj);
+                    }
+                }                        
+//                alert(pos_category_id_name_dict);
+                // Create an array of key-value pairs
+                const keyValuePairs = Object.entries(pos_category_id_name_dict);
+                // Sort the array based on the values
+                keyValuePairs.sort((a, b) => a[1].localeCompare(b[1]));
+                const sortedKeys_pos_categ_id_products_dict = keyValuePairs.map(pair => pair[0]);
+                for (const pos_categ_id of sortedKeys_pos_categ_id_products_dict) {
+                    let addonRowTxt = `
+<div class="addon-contents row" style="">
+    <div class="col categ_id_name" style="display: inline-block !important;">${pos_category_id_name_dict[pos_categ_id]}</div>`
+                    for (const product_obj of pos_categ_id_products_dict[pos_categ_id]){
+                        addonRowTxt += `
+    <div class="col addons-item" style="display: inline-block !important;" data-addon-id=${product_obj.id}>
+        <div class="addons-product" style="">${product_obj.display_name}</div>
+        <button class="add-button">+</button><button class="remove-button">-</button></div>`;
+                    } 
+                    addonRowTxt += `</div>`;
+                    var addonRow = $(addonRowTxt);
                         // Add button click event handler
                         addonRow.find('.add-button').click(function(event) {
                             if (event.target.className == 'add-button') {
@@ -348,8 +355,8 @@ odoo.define('pos_product_addons.models', function(require) {
                             }
                         });
                         $('.addons-table').append(addonRow);
-                    }
-                }
+                }             
+                
             } else {
                 self.hide_addons()
             }
