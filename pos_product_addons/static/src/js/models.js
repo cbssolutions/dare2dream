@@ -246,7 +246,7 @@ odoo.define('pos_product_addons.models', function(require) {
                 var display_name = '(' + product.display_name + ')'
                 $('.sub-head').text(display_name).show('fast');
                 $('.cbs_close_addons').click(function(event){
-                    alert("working close");
+//                    alert("working close");
                     self.hide_addons();
                 })
                 for (var item = 0; item < product.product_ids.length; item++) {

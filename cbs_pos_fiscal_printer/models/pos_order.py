@@ -104,6 +104,13 @@ class PosOrder(models.Model):
 
     def cbs_print_at_fiscal_server(self, *a):
         force_nonfiscal = self._context.get('force_nonfiscal')
+        if self.cbs_fiscal_receipt_number and not self.config_id.cbs_print_non_fiscal_receipt:
+            if not self.config_id.cbs_after_fiscal_receipt_print_non_fiscal:
+                return {'error': "CBS: This recipt is already printed and it has the follwoing "
+                        f"{self.cbs_fiscal_receipt_number=}"}
+            else:
+                force_nonfiscal = True
+
         if not self.config_id.cbs_fiscal_printer_server_ip:
             return {}
         if len(self) != 1:
@@ -121,9 +128,6 @@ class PosOrder(models.Model):
         #    return {'error': "Nu poti avea si linii de vanzare si de retur in acelsi bon. Prima data faceti retur cu "
         #            "liniile necesare apoi faceti alt bon cu ce se vinde."}
 
-        if self.cbs_fiscal_receipt_number and not self.config_id.cbs_print_non_fiscal_receipt:
-            return {'error': "CBS: This recipt is already printed and it has the follwoing "
-                    f"{self.cbs_fiscal_receipt_number=}"}
         if not self.config_id.cbs_fiscal_printer_server_ip:
             return {'error': "CBS: You do not have configured in pos config the cbs_fiscal_printer_server_ip."
                     " Support at dev@cbssolutions.ro."
@@ -184,7 +188,7 @@ class PosOrder(models.Model):
 
             try:
                 # opening a fiscal receipt or nor fiscal
-                if self.config_id.cbs_print_non_fiscal_receipt or has_negative_amount:
+                if self.config_id.cbs_print_non_fiscal_receipt or has_negative_amount or force_nonfiscal:
                     # for fiscal printer must be "0000", for fiscal cascher must be "0" (operator 1 password)
                     # fp.OpenNonFiscalReceipt(1, "0", 0)  # OperPass
                     # fp.OpenNonFiscalReceipt(1, "0000", 0) 
@@ -349,7 +353,7 @@ class PosOrder(models.Model):
                             "cbs_before_ReadLastAndTotalReceiptNum": json.dumps(
                                 {"last_nr": b_last_nr, "last_total": b_last_total}),
                             'cbs_ReadLastAndTotalReceiptNum': json.dumps({"last_nr": last_nr, "last_total": last_total})})
-                if self.cbs_after_fiscal_receipt_print_non_fiscal:
+                if self.config_id.cbs_after_fiscal_receipt_print_non_fiscal:
                     # we are going to print also the non fiscal receipt 
                     fp.PaperFeed()
                     fp.PaperFeed()
