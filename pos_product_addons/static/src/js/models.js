@@ -271,7 +271,8 @@ odoo.define('pos_product_addons.models', function(require) {
                                 var order = self.env.pos.get_order();
                                 var rounding = self.env.pos.currency.rounding;
                                 if (event.target.className == 'add-button') {
-                                    var addon_id = event.target.offsetParent.dataset.addonId;
+        //not ok next row by cbs    var addon_id = event.target.offsetParent.dataset.addonId;
+                                    var addon_id = event.target.parentNode.dataset.addonId;
                                 } else {
                                     var addon_id = event.target.dataset.addonId;
                                 }

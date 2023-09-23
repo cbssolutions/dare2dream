@@ -103,13 +103,12 @@ class PosOrder(models.Model):
             raise ValidationError(error)
 
     def cbs_print_at_fiscal_server(self, *a):
-        force_nonfiscal = self._context.get('force_nonfiscal')
-        if self.cbs_fiscal_receipt_number and not self.config_id.cbs_print_non_fiscal_receipt:
-            if not self.config_id.cbs_after_fiscal_receipt_print_non_fiscal:
-                return {'error': "CBS: This recipt is already printed and it has the follwoing "
-                        f"{self.cbs_fiscal_receipt_number=}"}
-            else:
-                force_nonfiscal = True
+        force_nonfiscal = self._context.get('force_nonfiscal')  # will have a non fiscal receipt
+        if self.config_id.cbs_print_non_fiscal_receipt:
+            force_nonfiscal = True
+        if self.cbs_fiscal_receipt_number and not force_nonfiscal:
+            return {'error': "CBS: This recipt is already printed and it has the follwoing "
+                    f"{self.cbs_fiscal_receipt_number=}"}
 
         if not self.config_id.cbs_fiscal_printer_server_ip:
             return {}
@@ -188,7 +187,7 @@ class PosOrder(models.Model):
 
             try:
                 # opening a fiscal receipt or nor fiscal
-                if self.config_id.cbs_print_non_fiscal_receipt or has_negative_amount or force_nonfiscal:
+                if has_negative_amount or force_nonfiscal:
                     # for fiscal printer must be "0000", for fiscal cascher must be "0" (operator 1 password)
                     # fp.OpenNonFiscalReceipt(1, "0", 0)  # OperPass
                     # fp.OpenNonFiscalReceipt(1, "0000", 0) 
@@ -211,7 +210,7 @@ class PosOrder(models.Model):
                         fp.CloseNonFiscalReceipt()
                     return {'error': f"CBS: We closed a non fiscal recipt that was open.\n{ex1=}\n{ex2=}\n{ex3=}"}
 
-            if self.config_id.cbs_print_non_fiscal_receipt or force_nonfiscal or has_negative_amount:
+            if force_nonfiscal or has_negative_amount:
                 # ******************** NON fiscal bill *************************
                 if is_return:
                     fp.PrintText(f"RETUR AL: {is_return.ids}")
@@ -340,12 +339,12 @@ class PosOrder(models.Model):
 #                     print("GS info: " + str(GS_INFO))
             fp.PrintText(barcode_to_print)
 
-            if self.config_id.cbs_print_non_fiscal_receipt or force_nonfiscal or has_negative_amount:
+            if force_nonfiscal or has_negative_amount:
                 fp.CloseNonFiscalReceipt()
             else:
                 fp.CloseReceipt()
 
-            if not (self.config_id.cbs_print_non_fiscal_receipt or force_nonfiscal):
+            if force_nonfiscal or has_negative_amount:
                 this_receipt = fp.ReadLastAndTotalReceiptNum()
                 last_nr = str(this_receipt.LastReceiptNum)
                 last_total = str(this_receipt.TotalReceiptCounter)
@@ -354,7 +353,7 @@ class PosOrder(models.Model):
                                 {"last_nr": b_last_nr, "last_total": b_last_total}),
                             'cbs_ReadLastAndTotalReceiptNum': json.dumps({"last_nr": last_nr, "last_total": last_total})})
                 if self.config_id.cbs_after_fiscal_receipt_print_non_fiscal:
-                    # we are going to print also the non fiscal receipt 
+                    # we are going to print also the non fiscal receipt
                     fp.PaperFeed()
                     fp.PaperFeed()
                     self.with_context(force_nonfiscal=True).cbs_print_at_fiscal_server(a)
