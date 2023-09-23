@@ -239,7 +239,10 @@ odoo.define('pos_product_addons.models', function(require) {
                 for (var item = 0; item < product.product_ids.length; item++) {
                     var product_obj = self.env.pos.db.get_product_by_id([product.product_ids[item]]);
                     if (product_obj) {
-                        const pos_categ_id_name = product_obj.pos_categ_id;  //proxy array 0: id, 1: name
+                        let pos_categ_id_name = product_obj.pos_categ_id;  //proxy array 0: id, 1: name
+                        if (!pos_categ_id_name){
+                            pos_categ_id_name = [0,'NO CATEG']
+                        }
                         if (!pos_category_id_name_dict[pos_categ_id_name[0]]){
                             pos_category_id_name_dict[pos_categ_id_name[0]] = pos_categ_id_name[1];
                             pos_categ_id_products_dict[pos_categ_id_name[0]] = [];
