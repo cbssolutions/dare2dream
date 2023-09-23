@@ -12,8 +12,8 @@
                             <div class="row" style="padding-bottom: 5px;">
                                 <span class="head">Addons</span>
                                 <span class="sub-head">Products</span>
-                                <button type="button" class="cbs_close_addons" aria-label="Close">
-                                      <span aria-hidden="true">cbssolutions.ro_close_addons</span>
+                                <button type="button" class="cbs_close_addons" style="background-color: lightskyblue;" aria-label="Close">
+                                      <span aria-hidden="true">CLOSE PRODUCT ADDONS by cbssolutios.ro</span>
                                 </button>
                              </div>
                         </div>
