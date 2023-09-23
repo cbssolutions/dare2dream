@@ -222,11 +222,11 @@ odoo.define('pos_product_addons.models', function(require) {
                 if (this.env.isMobile) {
 //                    $('.product-list-container').css("width", "30%");
                     $addonpane.css("visibility", "visible");
-                    $addonpane.css("width", "60%");
+                    $addonpane.css("width", "66%");
                 } else {
 //                    $('.product-list-container').css("width", "30%");
                     $addonpane.css("visibility", "visible");
-                    $addonpane.css("width", "60%");
+                    $addonpane.css("width", "66%");
                 }
                 var display_name = '(' + product.display_name + ')'
                 $('.sub-head').text(display_name).show('fast');

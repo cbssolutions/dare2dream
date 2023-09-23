@@ -344,7 +344,7 @@ class PosOrder(models.Model):
             else:
                 fp.CloseReceipt()
 
-            if force_nonfiscal or has_negative_amount:
+            if not(force_nonfiscal or has_negative_amount):
                 this_receipt = fp.ReadLastAndTotalReceiptNum()
                 last_nr = str(this_receipt.LastReceiptNum)
                 last_total = str(this_receipt.TotalReceiptCounter)
