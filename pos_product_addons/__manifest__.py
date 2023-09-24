@@ -21,12 +21,12 @@
 ###############################################################################
 {
     'name': "Product Add-ons in POS",
-    'version': '16.0.1.1.1',
+    'version': '16.0.1.2.0',
     'category': 'Point of Sale',
     'summary': """ Add product addons(flavour) to the product in POS.""",
     'description': """This module brings an option to add/remove
                       addon(extension) cost of the products in the
-                      point of sale. You can configure the addon as 
+                      point of sale. You can configure the addon as
                       a product, so it brings all the product features
                       to the add-on. It is simple to handle by choosing
                       the add-on from the side bar menu which doesn't
@@ -34,7 +34,8 @@
                       add-on to the product price and displays the add-on cost
                       on the receipt.
 1.1.1 cbssolutions.ro: modified to show addon categories and in a row col way
-                      
+1.2.0 cbssolutions.ro: added also fields in pos_order_line to know what addon is for what product ( pos_order_line)
+
                       """,
     'author': "cbssolutions.ro; Cybrosys Techno Solutions",
     'company': 'Cybrosys Techno Solutions',

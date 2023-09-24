@@ -30,6 +30,16 @@ class PosOrder(models.Model):
     """To write the product addons to backend """
     _inherit = 'pos.order'
 
+    # added by cbs to order the addons under product
+    @api.model
+    def _order_fields(self, ui_order):
+        order_fields = super(PosOrder, self)._order_fields(ui_order)
+        order_fields['table_id'] = ui_order.get('table_id', False)
+        order_fields['customer_count'] = ui_order.get('customer_count', 0)
+        order_fields['multiprint_resume'] = ui_order.get('multiprint_resume', False)
+        return order_fields
+
+
     @api.model
     def _process_order(self, order, draft, existing_order):
         """Create or update an pos.order from a given dictionary.
@@ -48,8 +58,10 @@ class PosOrder(models.Model):
 
         addons = self.add_addons(order)  # adding the addons to the order
         if not existing_order:
+            for nr, line_to_add in enumerate(order['lines']):
+                line_to_add[2]['cbs_prod_nr'] = nr
             pos_order = self.create(self._order_fields(order))
-            for rec in addons:
+            for cbs_prod_nr, rec in enumerate(addons):
                 new_addon = rec[2]
                 x = new_addon['tax_ids'][0]
                 y = x[2]
@@ -57,7 +69,6 @@ class PosOrder(models.Model):
                     pos_taxes = self.env['account.tax'].browse(y[0])
                     if pos_taxes.price_include:
                         vals = [(0, 0, {
-                            'qty': new_addon['qty'],
                             'full_product_name': new_addon['full_product_name'],
                             'price_unit': new_addon['price_unit'],
                             'product_id': new_addon['product_id'],
@@ -95,6 +106,7 @@ class PosOrder(models.Model):
 
         pos_order = pos_order.with_company(pos_order.company_id)
         self = self.with_company(pos_order.company_id)
+        # till here we have added the addon lines
         self._process_payment_lines(order, pos_order, pos_session, draft)
 
         if not draft:
@@ -119,13 +131,15 @@ class PosOrder(models.Model):
         :returns: Product details.
         :rtype: list
         """
-        addon_list = [rec[2] for rec in order.get('lines')]
+        addon_list = [rec[2] for rec in order.get('lines')]  # here are the product_lines what can have or not have in them addon_items
         main = []
         final_adds = []
-        for adds in addon_list:
+        for cbs_prod_nr, adds in enumerate(addon_list):
             if adds.get('addon_items'):
                 for items in adds['addon_items']:
                     final_adds.append((0, 0, {
+                        'cbs_prod_nr': cbs_prod_nr,  # used to know for what product is
+                        'cbs_is_addon': True,
                         'qty': items['addon_count'],
                         'full_product_name': items['addon_name'],
                         'price_unit': items['addon_price_without'],

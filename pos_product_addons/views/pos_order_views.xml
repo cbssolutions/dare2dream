@@ -10,6 +10,11 @@
                    position="after">
                 <field name="total_without_including" invisible="1"/>
             </xpath>
+
+            <field name="price_subtotal_incl" position="after">
+                <field name="cbs_prod_nr" optional="hide"/>
+                <field name="cbs_is_addon" optional="hide"/>
+            </field>
         </field>
     </record>
 </odoo>
