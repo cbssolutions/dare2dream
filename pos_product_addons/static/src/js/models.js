@@ -264,8 +264,8 @@ odoo.define('pos_product_addons.models', function(require) {
                         addonRowTxt += `
     <div class="col addons-item" style="display: inline-block !important;padding-top: 0;padding-bottom: 0;" data-addon-id=${product_obj.id}>
         <div class="addons-product">${product_obj.display_name}</div>
-        <button class="add-button" style="background-color: #28a745; color: #fff;padding: 20px;margin-right: 20px;">+</button>
-        <button class="remove-button" style="background-color: #dc3545; color: #fff;padding: 20px;">-</button></div>`;
+        <button class="add-button" style="background-color: #28a745; color: #fff;padding: 15px;margin-right: 10px;">+</button>
+        <button class="remove-button" style="background-color: #dc3545; color: #fff;padding: 15px;">-</button></div>`;
                     } 
                     addonRowTxt += `</div>`;
                     var addonRow = $(addonRowTxt);
