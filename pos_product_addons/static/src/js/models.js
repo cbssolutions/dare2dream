@@ -262,7 +262,7 @@ odoo.define('pos_product_addons.models', function(require) {
     <div class="col categ_id_name" style="display: inline-block !important;">${pos_category_id_name_dict[pos_categ_id]}</div>`
                     for (const product_obj of pos_categ_id_products_dict[pos_categ_id]){
                         addonRowTxt += `
-    <div class="col addons-item" style="display: inline-block !important;" data-addon-id=${product_obj.id}>
+    <div class="col addons-item" style="display: inline-block !important;padding-top: 0;padding-bottom: 0;" data-addon-id=${product_obj.id}>
         <div class="addons-product">${product_obj.display_name}</div>
         <button class="add-button" style="background-color: #28a745; color: #fff;padding: 20px;margin-right: 20px;">+</button>
         <button class="remove-button" style="background-color: #dc3545; color: #fff;padding: 20px;">-</button></div>`;
