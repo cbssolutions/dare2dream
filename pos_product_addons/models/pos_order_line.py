@@ -26,3 +26,4 @@ class PosOrderLine(models.Model):
     _inherit = 'pos.order.line'
 
     total_without_including = fields.Integer(string='Total without including')
+    cbs_addon_for_pos_order_line = fields.Many2one('pos.order.line')

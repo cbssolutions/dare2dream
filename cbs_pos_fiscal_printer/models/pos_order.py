@@ -107,8 +107,9 @@ class PosOrder(models.Model):
         if self.config_id.cbs_print_non_fiscal_receipt:
             force_nonfiscal = True
         if self.cbs_fiscal_receipt_number and not force_nonfiscal:
-            return {'error': "CBS: This recipt is already printed and it has the follwoing "
-                    f"{self.cbs_fiscal_receipt_number=}"}
+            force_nonfiscal = True  # to print nonfiscal after fiscal was printed
+#             return {'error': "CBS: This recipt is already printed and it has the follwoing "
+#                     f"{self.cbs_fiscal_receipt_number=}"}
 
         if not self.config_id.cbs_fiscal_printer_server_ip:
             return {}
@@ -218,6 +219,8 @@ class PosOrder(models.Model):
                     # we just write some info like a recipt
                     to_print_for_product = line.product_id.text_list_for_pos_fiscal_recipt()
                     prod_name = to_print_for_product[0]
+                    if not (self.config_id.cbs_print_non_fiscal_receipt or has_negative_amount):
+                        prod_name = f"{line.qty:0.1f}X {prod_name}"
                     all_prod_list = split_product_name_in_printer_lines(
                         prod_name, self.config_id.cbs_fiscal_printer_line_symbols if
                         self.config_id.cbs_fiscal_printer_line_symbols > 30 else 30)
@@ -228,15 +231,19 @@ class PosOrder(models.Model):
                         for name in prod_list[:-1]:
                             fp.PrintText(f"{self.sanitise_txt_for_fiscal_print(name)}")
                     fp.PrintText(f"{self.sanitise_txt_for_fiscal_print(prod_list[-1])}")
-                    fp.PrintText(f"{line.qty:0.1f}X{line.price_unit:0.2f}X tax={line.price_subtotal_incl:0.2f}")
-                fp.PrintText(f"TOTAL: {self.amount_total:0.2f}")
-                for payment in self.payment_ids:
-                    if payment.payment_method_id.journal_id.type == 'cash':
-                        fp.PrintText(f"PLATA prin casa: {payment.amount}lei")
-                        if self.config_id.cbs_cash_drawer_open:
-                            fp.CashDrawerOpen()
-                    else:
-                        fp.PrintText(f"PLATA NU prin casa: {payment.amount}lei")
+                    if self.config_id.cbs_print_non_fiscal_receipt or has_negative_amount:
+                        fp.PrintText(f"{line.qty:0.1f}X{line.price_unit:0.2f}X tax={line.price_subtotal_incl:0.2f}")
+                if self.config_id.cbs_print_non_fiscal_receipt or has_negative_amount:
+                    # the amount is important only when you want to print nonfiscal receipt or negative
+                    # when we print consume we do not want
+                    fp.PrintText(f"TOTAL: {self.amount_total:0.2f}")
+                    for payment in self.payment_ids:
+                        if payment.payment_method_id.journal_id.type == 'cash':
+                            fp.PrintText(f"PLATA prin casa: {payment.amount}lei")
+                            if self.config_id.cbs_cash_drawer_open:
+                                fp.CashDrawerOpen()
+                        else:
+                            fp.PrintText(f"PLATA NU prin casa: {payment.amount}lei")
             else:
                 # ******************** fiscal bill *************************
                 # ******** here the amount is at least 0.01
