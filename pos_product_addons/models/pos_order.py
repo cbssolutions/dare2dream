@@ -30,16 +30,6 @@ class PosOrder(models.Model):
     """To write the product addons to backend """
     _inherit = 'pos.order'
 
-    # added by cbs to order the addons under product
-    @api.model
-    def _order_fields(self, ui_order):
-        order_fields = super(PosOrder, self)._order_fields(ui_order)
-        order_fields['table_id'] = ui_order.get('table_id', False)
-        order_fields['customer_count'] = ui_order.get('customer_count', 0)
-        order_fields['multiprint_resume'] = ui_order.get('multiprint_resume', False)
-        return order_fields
-
-
     @api.model
     def _process_order(self, order, draft, existing_order):
         """Create or update an pos.order from a given dictionary.
@@ -60,8 +50,10 @@ class PosOrder(models.Model):
         if not existing_order:
             for nr, line_to_add in enumerate(order['lines']):
                 line_to_add[2]['cbs_prod_nr'] = nr
-            pos_order = self.create(self._order_fields(order))
-            for cbs_prod_nr, rec in enumerate(addons):
+                line_to_add[2]['cbs_is_addon'] = False
+#            pos_order = self.create(self._order_fields(order))
+            cbs_all_addons_vals_to_add = order.get('lines', [])
+            for rec in addons:
                 new_addon = rec[2]
                 x = new_addon['tax_ids'][0]
                 y = x[2]
@@ -79,7 +71,8 @@ class PosOrder(models.Model):
                                 'price_subtotal_incl'],
                             'tax_ids': pos_taxes
                         })]
-                        pos_order.write({'lines': vals})
+                        cbs_all_addons_vals_to_add += vals
+#                       pos_order.write({'lines': vals})
                     else:
                         vals = [(0, 0, {
                             'qty': new_addon['qty'],
@@ -92,12 +85,16 @@ class PosOrder(models.Model):
                                 'price_subtotal_incl'],
                             'tax_ids': pos_taxes
                         })]
-                        pos_order.write({'lines': vals})
+                        cbs_all_addons_vals_to_add += vals
+#                        pos_order.write({'lines': vals})
                 else:
-                    pos_order.write({
-                        'lines': [rec],
-                    })
+#                    pos_order.write({'lines': [rec],})
+                    cbs_all_addons_vals_to_add += [rec]
 
+            def sort_first_product_line_than_addons(item, *a):
+                return (item[2]['cbs_prod_nr'], item[2]['cbs_is_addon'])
+            order['lines'] = sorted(cbs_all_addons_vals_to_add, key=sort_first_product_line_than_addons)
+            pos_order = self.create(self._order_fields(order))
         else:
             pos_order = existing_order
             pos_order.lines.unlink()
@@ -137,7 +134,7 @@ class PosOrder(models.Model):
         for cbs_prod_nr, adds in enumerate(addon_list):
             if adds.get('addon_items'):
                 for items in adds['addon_items']:
-                    final_adds.append((0, 0, {
+                    final_adds.append([0, 0, {
                         'cbs_prod_nr': cbs_prod_nr,  # used to know for what product is
                         'cbs_is_addon': True,
                         'qty': items['addon_count'],
@@ -152,6 +149,6 @@ class PosOrder(models.Model):
                         'tax_ids': [
                             [6, False,
                              [items['tax']] if items.get('tax') else []]]
-                    }))
+                    }])
                 main.append(final_adds)
         return final_adds
