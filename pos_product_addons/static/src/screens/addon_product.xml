@@ -5,20 +5,15 @@
     <t t-name="Addonspane" t-inherit="point_of_sale.ProductScreen"
        t-inherit-mode="extension" owl="1">
         <xpath expr="//ProductsWidget" position="before">
-             <div class="addonpane container" style="background-color: bisque">
-                <div class="row">
-                    <div class="col">
-                        <div class="scrollable-div addons-table" style="overflow:auto;display: inline-block !important;background-color: bisque; padding-bottom: 9px;">
+                        <div class="addonpane scrollable-div container addons-table" style="overflow:auto; background-color: bisque; padding-bottom: 9px;">
                             <div class="row" style="padding-bottom: 5px;">
                                 <span class="head">Addons</span>
                                 <span class="sub-head">Products</span>
-                                <button type="button" class="cbs_close_addons" style="background-color: lightskyblue;" aria-label="Close">
+                                <button type="button" class="cbs_close_addons btn btn-block" style="background-color: lightskyblue;" aria-label="Close">
                                       <span aria-hidden="true">CLOSE PRODUCT ADDONS by cbssolutios.ro</span>
                                 </button>
                              </div>
                         </div>
-                    </div>
-                </div>
 <!--                 <table class="addons-table">
                     <tr>
                         <th class="addons-head">
@@ -31,7 +26,6 @@
                         </th>
                     </tr>
                 </table>
- -->             </div>
-        </xpath>
+ -->    </xpath>
     </t>
 </templates>
