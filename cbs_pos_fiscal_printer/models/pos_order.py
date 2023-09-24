@@ -292,17 +292,19 @@ class PosOrder(models.Model):
                         fp.PrintText(f"Numerar:{cash_payment.amount}")
                 if cash_payments:
                     cash_payment_amount = sum(cash_payments.mapped("amount"))
-                    if cash_payment_amount < 0:
+                    if cash_payment_amount < 0.01:
                         _logger.error("fiscal printer should give erorr because is a negative amount"
                                       f"{self=} {cash_payments=} {cash_payment_amount=}")
-                    OptionPaymentType = 0
-                    if self.config_id.cbs_cash_drawer_open:
-                        fp.CashDrawerOpen()
-                    fp.Payment(OptionPaymentType, cash_payment_amount)
+                    else:
+                        OptionPaymentType = 0
+                        if self.config_id.cbs_cash_drawer_open:
+                            fp.CashDrawerOpen()
+                        fp.Payment(OptionPaymentType, cash_payment_amount)
                 for payment in non_cash_payments:
                     # OptionPaymentType: 2 thichete 4 bonuri 5 voucher  6 credit 7 moderne 8 aletele 9 euro
-                    OptionPaymentType = 1  # card  bank or what is defined
-                    fp.Payment(OptionPaymentType, payment.amount)
+                    if payment.amount > 0.01:
+                        OptionPaymentType = 1  # card  bank or what is defined
+                        fp.Payment(OptionPaymentType, payment.amount)
 
             # print footer text for fiscal or not fiscal
             if self.config_id.receipt_footer:
