@@ -5,10 +5,12 @@
     'name': "No more enterpriese app or shop ",
     'summary': """is hiding the buttons becuase they can destory the database if used
     all app menu is hiden for nor uid=2, for uid=2 is in group settings base.group_system
+
+1.1.0 also apps menu not visible to not administator settings
     """,
     'category': 'Technical',
     'sequence': 300,
-    'version': '16.0.1.0.0',
+    'version': '16.0.1.1.0',
     "website": "https://cbssolutions.ro",
     "author": "dev@cbssolutions.ro",
     "maintainers": ["dev@cbssolutions.ro"],

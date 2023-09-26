@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-
+<!-- inactivate enterprise menus-->
   <function model="ir.ui.menu" name="write">
        <value model="ir.ui.menu" search="[('id', '=', ref('base.menu_view_base_module_upgrade'))]"/>
        <value eval="{'active': False}"/>
@@ -26,5 +26,10 @@
        <value eval="{'active': False}"/>
  </function>
 
+<!-- not to show apps menu to not administraor/settings -->
+  <function model="ir.ui.menu" name="write">
+       <value model="ir.ui.menu" search="[('id', '=', ref('base.menu_management'))]"/>
+       <value eval="{'groups_id': [(6,0,[ref('base.group_system')])]}"/>
+ </function>
 
 </odoo>

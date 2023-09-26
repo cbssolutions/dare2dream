@@ -5,7 +5,7 @@
     <t t-name="Addonspane" t-inherit="point_of_sale.ProductScreen"
        t-inherit-mode="extension" owl="1">
         <xpath expr="//ProductsWidget" position="before">
-                        <div class="addonpane scrollable-div container addons-table" style="overflow:auto; background-color: bisque; padding-bottom: 9px;">
+                        <div class="addonpane scrollable-div container addons-table" style="overflow:auto; background-color: bisque; padding-bottom: 5px;">
                             <div class="row" style="padding-bottom: 5px;">
                                 <span class="head">Addons</span>
                                 <span class="sub-head">Products</span>
