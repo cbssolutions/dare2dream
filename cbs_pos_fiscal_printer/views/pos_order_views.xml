@@ -9,9 +9,12 @@
                     name="cbs_print_at_fiscal_server_backend" attrs="{'invisible':[('cbs_fiscal_receipt_number','!=',False)]}"/>
             </div>
              <field name="fiscal_position_id" position="after">
+                    <separator string="cbs fiscal fields"/>
                     <field name="cbs_fiscal_receipt_number"/>
                     <field name="cbs_ReadLastAndTotalReceiptNum"/>
                     <field name="cbs_before_ReadLastAndTotalReceiptNum"/>
+                    <field name="cbs_cash_payment"/>
+                    <field name="cbs_non_cash_payment"/>
              </field>
         </field>
     </record>
@@ -22,6 +25,8 @@
              <field name="amount_total" position="after">
                     <field name="cbs_fiscal_receipt_number" optional="hide"/>
                     <field name="cbs_ReadLastAndTotalReceiptNum" optional="hide"/>
+                    <field name="cbs_cash_payment" optional="show" sum="Cash"/>
+                    <field name="cbs_non_cash_payment" optional="show" sum="NON Cash"/>
              </field>
         </field>
     </record>

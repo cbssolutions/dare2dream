@@ -88,8 +88,10 @@ class PosOrder(models.Model):
     _inherit = ['pos.order']
 
     cbs_fiscal_receipt_number = fields.Char(help="number that was printed by fiscal printer on recipt", readonly=1)
-    cbs_ReadLastAndTotalReceiptNum = fields.Char(readonly=1, help="taken when printing form fiscal device")
+    cbs_ReadLastAndTotalReceiptNum = fields.Char(readonly=1, help="taken when printing form fiscal device; Total receipt number")
     cbs_before_ReadLastAndTotalReceiptNum = fields.Char(readonly=1, help="taken before printing form fiscal device")
+    cbs_cash_payment = fields.Float(readonly=1, help="Only at printed recipts, total paid with cash.")
+    cbs_non_cash_payment = fields.Float(readonly=1, help="Only at printed recipts, total paid without cash.")
 
     def sanitise_txt_for_fiscal_print(self, txt):
         ascii_txt = unidecode(txt)  # unaccent unidecode('北亰') 'Bei Jing 'unidecode('François') 'Francois'
@@ -211,6 +213,12 @@ class PosOrder(models.Model):
                         fp.CloseNonFiscalReceipt()
                     return {'error': f"CBS: We closed a non fiscal recipt that was open.\n{ex1=}\n{ex2=}\n{ex3=}"}
 
+            # cash payment:
+            cash_payments = self.payment_ids.filtered(lambda r: r.payment_method_id.journal_id.type == 'cash')
+            non_cash_payments = self.payment_ids.filtered(lambda r: r.payment_method_id.journal_id.type != 'cash')
+            cash_payment_amount = sum(cash_payments.mapped("amount"))
+            non_cash_payment_amount = sum(non_cash_payments.mapped("amount"))
+
             if force_nonfiscal or has_negative_amount:
                 # ******************** NON fiscal bill *************************
                 if is_return:
@@ -239,11 +247,11 @@ class PosOrder(models.Model):
                     fp.PrintText(f"TOTAL: {self.amount_total:0.2f}")
                     for payment in self.payment_ids:
                         if payment.payment_method_id.journal_id.type == 'cash':
-                            fp.PrintText(f"PLATA prin casa: {payment.amount}lei")
+                            fp.PrintText(f"PLATA prin casa: {payment.amount:0.2f}lei")
                             if self.config_id.cbs_cash_drawer_open:
                                 fp.CashDrawerOpen()
                         else:
-                            fp.PrintText(f"PLATA NU prin casa: {payment.amount}lei")
+                            fp.PrintText(f"PLATA NU prin casa: {payment.amount:0.2f}lei")
             else:
                 # ******************** fiscal bill *************************
                 # ******** here the amount is at least 0.01
@@ -290,15 +298,12 @@ class PosOrder(models.Model):
                                      line_tremol_VATrate, (-1) * line.price_unit,
                                      line.qty * (-1))
                     pass
-                # cash payment:
-                cash_payments = self.payment_ids.filtered(lambda r: r.payment_method_id.journal_id.type == 'cash')
-                non_cash_payments = self.payment_ids.filtered(lambda r: r.payment_method_id.journal_id.type != 'cash')
+                # print cash payments
                 if len(cash_payments) > 1:
                     # the fiscal pirnter does only know the amont that was paid ( not also the rest)
                     for cash_payment in cash_payments:
                         fp.PrintText(f"Numerar:{cash_payment.amount}")
                 if cash_payments:
-                    cash_payment_amount = sum(cash_payments.mapped("amount"))
                     if cash_payment_amount < 0.01:
                         _logger.error("fiscal printer should give erorr because is a negative amount"
                                       f"{self=} {cash_payments=} {cash_payment_amount=}")
@@ -353,19 +358,21 @@ class PosOrder(models.Model):
             else:
                 fp.CloseReceipt()
 
+            to_write = {'cbs_cash_payment': cash_payment_amount, 'cbs_non_cash_payment': non_cash_payment_amount}
             if not(force_nonfiscal or has_negative_amount):
                 this_receipt = fp.ReadLastAndTotalReceiptNum()
                 last_nr = str(this_receipt.LastReceiptNum)
                 last_total = str(this_receipt.TotalReceiptCounter)
-                self.write({'cbs_fiscal_receipt_number': last_nr,
-                            "cbs_before_ReadLastAndTotalReceiptNum": json.dumps(
-                                {"last_nr": b_last_nr, "last_total": b_last_total}),
-                            'cbs_ReadLastAndTotalReceiptNum': json.dumps({"last_nr": last_nr, "last_total": last_total})})
+                to_write.update({'cbs_fiscal_receipt_number': last_nr,
+                                "cbs_before_ReadLastAndTotalReceiptNum": json.dumps(
+                                    {"last_nr": b_last_nr, "last_total": b_last_total}),
+                                'cbs_ReadLastAndTotalReceiptNum': json.dumps({"last_nr": last_nr, "last_total": last_total})})
                 if self.config_id.cbs_after_fiscal_receipt_print_non_fiscal:
                     # we are going to print also the non fiscal receipt
                     fp.PaperFeed()
                     fp.PaperFeed()
                     self.with_context(force_nonfiscal=True).cbs_print_at_fiscal_server(a)
+                self.write(to_write)
 
             if self.config_id.cbs_cut_after_print:
                 fp.PaperFeed()

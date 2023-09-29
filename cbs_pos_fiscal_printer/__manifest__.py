@@ -31,16 +31,16 @@ For this module to work, the fisca printer must be accessed from the odoo server
     - if line vat is not found in cbs_odoo_tax_id_to_tremol_vat_json, will set default A 
     if you have a error with zfplab library exceptio!! sx.ste1 = 0x30 ad ste2=0x32 -command is ilegal in curent context
     (fp.SellPLUwithSpecifiedVAT means that you have some vat in invoice that is not valid at fiscal printer
-    
 1.4.0 cbs_no_zero_value_on_fiscal_receipt = true will not print 0 value lines
         cbs_after_fiscal_receipt_print_non_fiscal = true will print a non fiscal receipt after fiscal one
+1.5.0 on pos order put also the paid with cash
 Future:
 - to make also to work directly from javascript ( or other version for javascript, when the server is installed locally and also the printer, and odoo server can not access them)
 - to make it work only from some ip/or the ip where is the fiscal printer (read the request ip and use it as ip of fiscal driver)
     """,
     'category': 'Sales/Point of Sale',
     'sequence': 300,
-    'version': '16.0.1.4.0',
+    'version': '16.0.1.5.0',
     "website": "https://cbssolutions.ro",
     "author": "dev@cbssolutions.ro",
     "maintainers": ["dev@cbssolutions.ro"],
