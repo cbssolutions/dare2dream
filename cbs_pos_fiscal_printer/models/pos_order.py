@@ -298,9 +298,9 @@ class PosOrder(models.Model):
                         _logger.info(f"{prod_list[-1]=},{line_tremol_VATrate=}, {(-1) * line.price_unit=},{line.qty * (-1)=}")
                         if line.price_unit < 0:  # is discount
                             fp.StornoPLU(prod_list[-1],
-                                    line_tremol_VATrate, (-1) * line.price_unit,
+                                    line_tremol_VATrate, line.price_unit,
                                     line.qty)
-                        else:  # is strono  qty<0
+                        else:  # is strono  qty<0       here we need to change the - form qty to price unit
                             fp.StornoPLU(prod_list[-1],
                                     line_tremol_VATrate, (-1) * line.price_unit,
                                     line.qty * (-1))
