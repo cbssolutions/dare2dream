@@ -295,7 +295,7 @@ class PosOrder(models.Model):
                         # StornoPLU(NamePLU=,OptionVATClass=,Price=,Quantity=,DiscAddP=,DiscAddV=,DiscNamed=,Category=,NamePLUextension=,AdditionalNamePLU=)                
                         # you are not allowd to have less than 0.01
                         # first time the + lines than the - ones, here we are the -, where given qty must be>1 and price <0
-                        _logger.info(f"{prod_list[-1]=},{line_tremol_VATrate=}, {(-1) * line.price_unit=},{line.qty * (-1)=}")
+                        _logger.info(f"\n\n\n {prod_list[-1]=},{line_tremol_VATrate=}, {(-1) * line.price_unit=},{line.qty * (-1)=}")
                         if line.price_unit < 0:  # is discount
                             fp.StornoPLU(prod_list[-1],
                                     line_tremol_VATrate, line.price_unit,
