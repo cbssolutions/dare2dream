@@ -298,6 +298,7 @@ class PosOrder(models.Model):
                         fp.StornoPLU(prod_list[-1],
                                      line_tremol_VATrate, (-1) * line.price_unit,
                                      line.qty * (-1))
+                        _logger.error(f"{prod_list[-1]=},{line_tremol_VATrate=}, {(-1) * line.price_unit=},{line.qty * (-1)=}")
                     pass
                 # print cash payments
                 if len(cash_payments) > 1:
