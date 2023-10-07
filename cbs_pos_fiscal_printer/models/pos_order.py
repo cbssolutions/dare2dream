@@ -281,7 +281,7 @@ class PosOrder(models.Model):
                         cbs_odoo_tax_id_to_tremol_vat_json = json.loads(self.config_id.cbs_odoo_tax_id_to_tremol_vat_json)
                         line_tremol_VATrate = cbs_odoo_tax_id_to_tremol_vat_json.get(line.tax_ids[0].id, 'A')
                     # the efective sale line
-                    if line in is_sale:
+                    if (line in is_sale) and (line.price_unit*line.qty > 0):
                         # fp.SellPLUwithSpecifiedVAT("Article", Enums.OptionVATClass.VAT_Class_A, 0.01, 1)
                         # 0.01  =  unit price including vat
                         # 1 = quantity
@@ -289,6 +289,7 @@ class PosOrder(models.Model):
                                                    line_tremol_VATrate, line.price_unit,
                                                    line.qty)
                     else:  # is STORNO STORNO ( some + values and some - values with sum > 0.01) #    line in is_return
+                        # or is DISCOUNT
                         # the fiscal printer will write a storno before
                         # *******************   I must put storno *************************************
                         # StornoPLU(NamePLU=,OptionVATClass=,Price=,Quantity=,DiscAddP=,DiscAddV=,DiscNamed=,Category=,NamePLUextension=,AdditionalNamePLU=)                
